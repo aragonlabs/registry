@@ -1,6 +1,6 @@
 pragma solidity ^0.4.15;
 
-import "@aragon/core/contracts/apps/App.sol";
+import "@aragon/os/contracts/apps/AragonApp.sol";
 
 /**
  * A generic registry app.
@@ -11,24 +11,24 @@ import "@aragon/core/contracts/apps/App.sol";
  * the rules for who can add and remove entries in the registry, it becomes
  * a powerful building block (examples are token-curated registries and stake machines).
  */
-contract RegistryApp is App {
+contract RegistryApp is AragonApp {
     // The entries in the registry.
-    mapping(bytes32 => bytes32) entries;
+    mapping(bytes32 => bytes) entries;
 
     // Fired when an entry is added to the registry.
     event EntryAdded(bytes32 id);
     // Fired when an entry is removed from the registry.
     event EntryRemoved(bytes32 id);
 
-    bytes32 public constant ADD_ENTRY_ROLE = bytes32(1);
-    bytes32 public constant REMOVE_ENTRY_ROLE = bytes32(2);
+    bytes32 public constant ADD_ENTRY_ROLE = bytes32("ADD_ENTRY_ROLE");
+    bytes32 public constant REMOVE_ENTRY_ROLE = bytes32("REMOVE_ENTRY_ROLE");
 
     /**
      * Add an entry to the registry.
      * @param _data The entry to add to the registry
      */
     function add(
-        bytes32 _data
+        bytes _data
     ) public auth(ADD_ENTRY_ROLE) returns (bytes32 _id) {
         _id = keccak256(_data);
         entries[_id] = _data;
@@ -48,12 +48,13 @@ contract RegistryApp is App {
     }
 
     /**
-     * Get an entry from the registry.
+     * Check if an entry is in the registry.
      * @param _id The ID of the entry to get
+     * @return True if it's in the registry, false otherwise
      */
-    function get(
+    function exists(
         bytes32 _id
-    ) public constant returns (bytes32) {
-        return entries[_id];
+    ) public constant returns (bool) {
+        return entries[_id].length > 0;
     }
 }
