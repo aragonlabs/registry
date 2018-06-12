@@ -1,5 +1,5 @@
 {
-  "name": "registry",
+  "name": "@aragon/apps-registry",
   "version": "1.0.0",
   "description": "",
   "main": "truffle.js",
@@ -7,7 +7,7 @@
     "test": "test"
   },
   "dependencies": {
-    "@aragon/core": "^2.0.1"
+    "@aragon/os": "^3.1.2"
   },
   "devDependencies": {},
   "scripts": {
@@ -15,13 +15,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aragonlabs/staking.git"
+    "url": "git+https://github.com/aragonlabs/registry.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/aragonlabs/staking/issues"
+    "url": "https://github.com/aragonlabs/registry/issues"
   },
-  "homepage": "https://github.com/aragonlabs/staking#readme"
+  "homepage": "https://github.com/aragonlabs/registry#readme"
 }
