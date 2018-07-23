@@ -1,50 +1,38 @@
 var Registry = artifacts.require("./RegistryApp.sol");
 
 contract('Registry', function (accounts) {
-  describe('#add', function () {
-    it('should add entries', function () {
-      return Registry.deployed().then((instance) => {
-        return instance.add("foo")
-      }).then((receipt) => {
-        assert.isTrue(
-          receipt.logs.filter((log) => log.event === 'EntryAdded').length === 1,
-          'should fire EntryAdded event'
-        )
-      })
-    })
+  let app
+
+  beforeEach(async () => {
+    app = await Registry.new()
+    await app.initialize()
   })
 
-  describe('#remove', function () {
-    it('should remove entries', async function () {
-      const instance = await Registry.deployed()
-
-      return instance.add("foo").then((receipt) => {
-        var addedEvent = receipt.logs.filter((log) => log.event === 'EntryAdded')[0]
-        var entryId = addedEvent.args.id
-
-        return instance.remove(entryId)
-      }).then((receipt) => {
-        assert.isTrue(
-          receipt.logs.filter((log) => log.event === 'EntryRemoved').length === 1,
-          'should fire EntryRemoved event'
-        )
-      })
-    })
+  it('should add entries', async function () {
+    const receipt = await app.add("foo")
+    assert.isTrue(
+      receipt.logs.filter((log) => log.event === 'EntryAdded').length === 1,
+      'should fire EntryAdded event'
+    )
   })
 
-  describe('#get', function () {
-    it('should get an entry', async function () {
-      const instance = await Registry.deployed()
+  it('should remove entries', async function () {
+    const receipt1 = await app.add("foo")
+    var addedEvent = receipt1.logs.filter((log) => log.event === 'EntryAdded')[0]
+    var entryId = addedEvent.args.id
 
-      return instance.add("foo").then((receipt) => {
-        var addedEvent = receipt.logs.filter((log) => log.event === 'EntryAdded')[0]
-        var entryId = addedEvent.args.id
+    const receipt2 = await app.remove(entryId)
+    assert.isTrue(
+      receipt2.logs.filter((log) => log.event === 'EntryRemoved').length === 1,
+      'should fire EntryRemoved event'
+    )
+  })
 
-        return instance.get.call(entryId)
-      }).then((returnData) => {
-        const FOO_IN_BYTES32 = '0x666f6f0000000000000000000000000000000000000000000000000000000000'
-        assert.equal(returnData, FOO_IN_BYTES32)
-      })
-    })
+  it('should get an entry', async function () {
+    const receipt1 = await app.add("foo")
+    var addedEvent = receipt1.logs.filter((log) => log.event === 'EntryAdded')[0]
+    var entryId = addedEvent.args.id
+
+    assert.isTrue(await app.exists.call(entryId), 'Entry should exist')
   })
 })
