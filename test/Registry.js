@@ -1,50 +1,68 @@
+const { soliditySha3 } = require('web3-utils')
+
+const { assertRevert } = require('@aragon/test-helpers/assertThrow')
+
 var Registry = artifacts.require("./RegistryApp.sol");
 
 contract('Registry', function (accounts) {
-  describe('#add', function () {
-    it('should add entries', function () {
-      return Registry.deployed().then((instance) => {
-        return instance.add("foo")
-      }).then((receipt) => {
-        assert.isTrue(
-          receipt.logs.filter((log) => log.event === 'EntryAdded').length === 1,
-          'should fire EntryAdded event'
-        )
-      })
+  let app
+
+  beforeEach(async () => {
+    app = await Registry.new()
+    await app.initialize()
+  })
+
+  it('adds entries', async function () {
+    const receipt = await app.add("foo")
+    assert.isTrue(
+      receipt.logs.filter((log) => log.event === 'EntryAdded').length === 1,
+      'should fire EntryAdded event'
+    )
+  })
+
+  it('fails adding an already existing entry', async function () {
+    const entry = "foo"
+    const receipt = await app.add(entry)
+    return assertRevert(async() => {
+      await app.add(entry)
     })
   })
 
-  describe('#remove', function () {
-    it('should remove entries', async function () {
-      const instance = await Registry.deployed()
+  it('removes entries', async function () {
+    const receipt1 = await app.add("foo")
+    var addedEvent = receipt1.logs.filter((log) => log.event === 'EntryAdded')[0]
+    var entryId = addedEvent.args.id
 
-      return instance.add("foo").then((receipt) => {
-        var addedEvent = receipt.logs.filter((log) => log.event === 'EntryAdded')[0]
-        var entryId = addedEvent.args.id
+    const receipt2 = await app.remove(entryId)
+    assert.isTrue(
+      receipt2.logs.filter((log) => log.event === 'EntryRemoved').length === 1,
+      'should fire EntryRemoved event'
+    )
+  })
 
-        return instance.remove(entryId)
-      }).then((receipt) => {
-        assert.isTrue(
-          receipt.logs.filter((log) => log.event === 'EntryRemoved').length === 1,
-          'should fire EntryRemoved event'
-        )
-      })
+  it('fails removing non-existent entries', async function () {
+    const entryId = soliditySha3("foo")
+    return assertRevert(async () => {
+      await app.remove(entryId)
     })
   })
 
-  describe('#get', function () {
-    it('should get an entry', async function () {
-      const instance = await Registry.deployed()
+  it('gets an entry', async function () {
+    const entry = "0x666f6f" // "foo"
+    const receipt1 = await app.add(entry)
+    var addedEvent = receipt1.logs.filter((log) => log.event === 'EntryAdded')[0]
+    var entryId = addedEvent.args.id
 
-      return instance.add("foo").then((receipt) => {
-        var addedEvent = receipt.logs.filter((log) => log.event === 'EntryAdded')[0]
-        var entryId = addedEvent.args.id
+    assert.equal(await app.get.call(entryId), entry, 'Entry should exist')
+  })
 
-        return instance.get.call(entryId)
-      }).then((returnData) => {
-        const FOO_IN_BYTES32 = '0x666f6f0000000000000000000000000000000000000000000000000000000000'
-        assert.equal(returnData, FOO_IN_BYTES32)
-      })
-    })
+  it('checks that an entry exists', async function () {
+    const entry = "foo"
+    const receipt1 = await app.add(entry)
+    var addedEvent = receipt1.logs.filter((log) => log.event === 'EntryAdded')[0]
+    var entryId = addedEvent.args.id
+
+    assert.equal(entryId, soliditySha3(entry), "Key should match")
+    assert.isTrue(await app.exists.call(entryId), 'Entry should exist')
   })
 })

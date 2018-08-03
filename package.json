@@ -1,27 +1,41 @@
 {
-  "name": "registry",
+  "name": "@aragon/apps-registry",
   "version": "1.0.0",
-  "description": "",
+  "description": "Registry App for Aragon TCR",
   "main": "truffle.js",
-  "directories": {
-    "test": "test"
-  },
-  "dependencies": {
-    "@aragon/core": "^2.0.1"
-  },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "truffle compile",
+    "lint": "solium --dir ./contracts",
+    "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
+    "test:gas": "GAS_REPORTER=true npm test",
+    "coverage": "SOLIDITY_COVERAGE=true npm run ganache-cli:test",
+    "truffle:dev": "node_modules/.bin/truffle dev",
+    "ganache-cli:test": "./node_modules/@aragon/test-helpers/ganache-cli.sh",
+    "prepublishOnly": "truffle compile --all"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aragonlabs/staking.git"
+    "url": "git+https://github.com/aragonlabs/registry.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Aragon One AG",
+  "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/aragonlabs/staking/issues"
+    "url": "https://github.com/aragonlabs/registry/issues"
   },
-  "homepage": "https://github.com/aragonlabs/staking#readme"
+  "homepage": "https://github.com/aragonlabs/registry#readme",
+  "devDependencies": {
+    "@aragon/test-helpers": "^1.0.0",
+    "@aragon/apps-curation": "^0.0.1",
+    "eth-gas-reporter": "^0.1.5",
+    "ganache-cli": "^6.1.0",
+    "solidity-coverage": "0.4.3",
+    "solidity-sha3": "^0.4.1",
+    "solium": "^1.0.4",
+    "truffle": "4.0.5",
+    "truffle-hdwallet-provider": "0.0.3",
+    "web3-utils": "1.0.0-beta.33"
+  },
+  "dependencies": {
+    "@aragon/os": "^3.1.2"
+  }
 }
