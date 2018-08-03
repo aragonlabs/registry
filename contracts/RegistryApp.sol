@@ -38,8 +38,9 @@ contract RegistryApp is IRegistry, AragonApp {
      */
     function add(bytes _data) isInitialized public auth(ADD_ENTRY_ROLE) returns (bytes32 _id) {
         _id = keccak256(_data);
-        entries[_id] = _data;
+        require(!exists(_id));
 
+        entries[_id] = _data;
         EntryAdded(_id);
     }
 
@@ -48,8 +49,19 @@ contract RegistryApp is IRegistry, AragonApp {
      * @param _id The ID of the entry to remove
      */
     function remove(bytes32 _id) isInitialized public auth(REMOVE_ENTRY_ROLE) {
+        require(exists(_id));
+
         delete entries[_id];
         EntryRemoved(_id);
+    }
+
+    /**
+     * Get an entry from the registry.
+     * @param _id The ID of the entry to get
+     * @return The entry data
+     */
+    function get(bytes32 _id) isInitialized public view returns (bytes) {
+        return entries[_id];
     }
 
     /**

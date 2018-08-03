@@ -10,7 +10,7 @@ interface IRegistry {
 
 contract FakeRegistry {
     // to work around coverage issue
-    function fake() public {
+    function fake() public pure {
         // for lint
     }
 }
