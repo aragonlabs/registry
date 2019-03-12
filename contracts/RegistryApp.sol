@@ -1,4 +1,4 @@
-pragma solidity ^0.4.15;
+pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
 import "./interfaces/IRegistry.sol";
@@ -41,7 +41,7 @@ contract RegistryApp is IRegistry, AragonApp {
         require(!exists(_id));
 
         entries[_id] = _data;
-        EntryAdded(_id);
+        emit EntryAdded(_id);
     }
 
     /**
@@ -52,7 +52,7 @@ contract RegistryApp is IRegistry, AragonApp {
         require(exists(_id));
 
         delete entries[_id];
-        EntryRemoved(_id);
+        emit EntryRemoved(_id);
     }
 
     /**
